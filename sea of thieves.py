@@ -1,16 +1,21 @@
 import random, time
 from threading import Timer
+import json
+from cryptography.fernet import Fernet
 
 achievementList = dict(cheater=False)
 settingList = dict(autosaveStatus=False)
 reputationData = dict(goldReputation = 0, soulsReputation = 0, merchantReputation = 0, callReputation = 0, reaperReputation = 0, servantReputation = 0, guardianReputation = 0)
+key = Fernet.generate_key()
+with open('filekey.key', 'wb') as filekey:
+   filekey.write(key)
 
 print("Welcome to the Sea of Thieves!")
 time.sleep(1)
 print("This game is a piracy simulator where you collect treasure and gain reputation with the local trading companies. ")
 print("This is the main menu! What do you wish to do, captain? ")
 while True:
-    menuOption = input("Your options are that of an options menu, and to start the game. Enter O for options, S to start the game, and E to leave the game. ")
+    menuOption = input("Your options are that of an options menu, start the game, and leave the game. Enter O for options, S to start the game, and E to leave the game. ")
     menuOption = menuOption.upper()
     if menuOption == "WWSSADADBA":
         print("That's the Konami Code, captain.")
@@ -21,6 +26,24 @@ while True:
     elif menuOption == "S":
         print("Understood, captain! There are two modes from here. You can play the Maiden Voyage, and learn the ropes, or you can start the game in Adventure Mode! ")
         modeSelection = input("Enter A for Adventure Mode, or enter M for the Maiden Voyage. ")
+        saveChoice = input("Is this a new save or do you wish to load data? Enter N for new data, or L to load data. ")
+        saveChoice = saveChoice.upper()
+        if saveChoice == "L":
+            successCheck=0
+            with open("achievements.txt") as achievements:
+                data = achievements.read()
+                achievementList = json.loads(data)
+                with open("settings.txt") as settings:
+                    data = settings.read()
+                    settingList = json.loads(data)
+                    with open("save.txt") as save:
+                        data = save.read()
+                        reputationData = json.loads(data)
+                        successCheck=1
+            if successCheck == 1:
+                print("Load Successful! ")
+            elif successCheck == 0:
+                print("Load Failed! ")
         modeSelection = modeSelection.upper()
         if modeSelection == "M":
             #go to maiden voyage
@@ -65,12 +88,12 @@ while True:
             exitOption = exitOption.upper()
             if exitOption == "Y":
                 print("See ya soon, captain! ")
-                achievements = open("achievements.txt", "w")
-                achievements.write(achievementList)
-                settings = open("settings.txt", "w")
-                settings.write(settingList)
-                save = open("save.txt", "w")
-                save.write(reputationData)
+                with open("achievements.txt", "w") as achievements:
+                    achievements.write(json.dumps(achievementList))
+                with open("settings.txt", "w") as settings:
+                    settings.write(json.dumps(settingList))
+                with open("save.txt", "w") as save:
+                    save.write(json.dumps(reputationData))
                 exit()
             elif exitOption == "N":
                 print("Understood, captain! Returning you to the main menu! ")
