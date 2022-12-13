@@ -9,6 +9,9 @@ reputationData = dict(goldReputation = 0, soulsReputation = 0, merchantReputatio
 key = Fernet.generate_key()
 with open('filekey.key', 'wb') as filekey:
    filekey.write(key)
+with open('filekey.key', 'rb') as filekey:
+   key = filekey.read()
+fernet = Fernet(key)
 
 print("Welcome to the Sea of Thieves!")
 time.sleep(1)
@@ -87,6 +90,7 @@ while True:
             exitOption = input("'Yer sure, captain? Any unsaved data will be lost! (Y/N)")
             exitOption = exitOption.upper()
             if exitOption == "Y":
+                encryptSuccess = 0
                 print("See ya soon, captain! ")
                 with open("achievements.txt", "w") as achievements:
                     achievements.write(json.dumps(achievementList))
@@ -94,6 +98,22 @@ while True:
                     settings.write(json.dumps(settingList))
                 with open("save.txt", "w") as save:
                     save.write(json.dumps(reputationData))
+                with open("achievements.txt", "rb") as file:
+                    original = file.read()
+                    encrypted = fernet.encrypt(original)
+                    with open("achievements.txt", "wb") as encryptedFile:
+                        encryptedFile.write(encrypted)
+                        encryptSuccess = 1
+                        with open("settings.txt", "rb") as file:
+                            original = file.read()
+                            encrypted = fernet.encrypt(original)
+                            with open("settings.txt", "wb") as encryptedFile:
+                                encryptedFile.write(encrypted)
+                                
+                if encryptSuccess == 1:
+                    print("File Encryption Successful")
+                elif encryptSuccess != 1:
+                    print("File Encryption Failed!")
                 exit()
             elif exitOption == "N":
                 print("Understood, captain! Returning you to the main menu! ")
