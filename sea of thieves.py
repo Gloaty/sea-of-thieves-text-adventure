@@ -14,12 +14,12 @@ def main():
         key = Fernet.generate_key()
         with open('filekey.key', 'wb') as filekey:
             filekey.write(key)
-            fernet = key
             keyGenerated = 1
         main()
     elif keyExists == True or keyGenerated == 1:
         with open("filekey.key", "rb") as filekey:
-            fernet = filekey.read()
+            key = filekey.read()
+        fernet = Fernet(key)
         print("Welcome to the Sea of Thieves!")
         time.sleep(1)
         print("This game is a piracy simulator where you collect treasure and gain reputation with the local trading companies. ")
@@ -85,6 +85,7 @@ def main():
                     continue
                 elif optionChoice == "EXIT":
                     print("Returning to main menu... ")
+                    time.sleep(1)
                     continue
                 else:
                     print("I cannot understand that, captain. Returning you to the main menu. ")
@@ -94,11 +95,17 @@ def main():
                     exitOption = input("'Yer sure, captain? Any unsaved data will be lost! (Y/N)")
                     exitOption = exitOption.upper()
                     if exitOption == "Y":
-                        with open("save.txt", "wb") as file:
+                        with open("achievements.txt", "w") as achievements:
+                            achievements.write(json.dumps(achievementList))
+                        with open("settings.txt", "w") as settings:
+                            settings.write(json.dumps(settingList))
+                        with open("save.txt", "w") as save:
+                            save.write(json.dumps(reputationData))
+                        with open("save.txt", "rb") as file:
                             original = file.read()
                         encrypted = fernet.encrypt(original)
-                        with open('nba.csv', 'wb') as encrypted_file:
-                            encrypted_file.write(encrypted)
+                        with open('save.txt', 'wb') as encrypted_file:
+                                encrypted_file.write(encrypted)
                         exit()
                     elif exitOption == "N":
                         print("Understood, captain! Returning you to the main menu! ")
